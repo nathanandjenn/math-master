@@ -1,4 +1,5 @@
 
+
 // Game Config
 const CONFIG = {
     minFactor: 2,
@@ -12,7 +13,7 @@ const CONFIG = {
 let state = {
     currentUser: 'Player',
     users: {}, // { "Name": { sessions: [], bestStreak: 0 } }
-    apiBase: window.location.hostname === 'localhost' ? 'http://localhost:8080' : '', // Cloud Run URL will be injected or relative
+    apiBase: 'https://math-master-backend-193550708302.northamerica-northeast1.run.app',
 
 
     isPlaying: false,
