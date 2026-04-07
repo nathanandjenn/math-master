@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Floating shapes for background aesthetics -->
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+
+        <div class="game-card">
+            <header class="game-header">
+                <div class="stat-box">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Best Streak</span>
+                    <span class="stat-value" id="streak">0</span>
+                </div>
+            </header>
+
+            <div class="timer-container">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
+
+            <main class="question-area">
+                <div class="question-text" id="question">
+                    <span id="factor-a">2</span>
+                    <span class="operator">×</span>
+                    <span id="factor-b">2</span>
+                </div>
+
+                <form id="answer-form" autocomplete="off">
+                    <input type="tel" id="answer-input" maxlength="3" autofocus autocomplete="off" pattern="[0-9]*"
+                        inputmode="numeric">
+                    <div id="voice-status" style="display: none;"></div>
+                </form>
+            </main>
+
+            <div class="feedback-overlay" id="feedback-overlay">
+                <div class="feedback-content">
+                    <h2 id="feedback-title">Time's Up!</h2>
+                    <p id="feedback-answer">Answer: 12</p>
+                </div>
+            </div>
+
+            <div class="pause-control" style="position: absolute; top: 1rem; right: 1rem;">
+                <button id="pause-btn" class="icon-btn" aria-label="Pause" style="color: rgba(255,255,255,0.5);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="mode-selection" class="mode-selection">
+                <h1 style="margin-bottom: 2rem;">Math Master</h1>
+                <button id="start-btn" class="start-btn" style="height: 60px; font-size: 1.5rem;">
+                    Start Quiz
+                </button>
+            </div>
+
+        </div>
+
+
+
+        <!-- Pause Modal -->
+        <div class="feedback-overlay" id="pause-modal">
+            <div class="feedback-content"
+                style="background: var(--card-bg); padding: 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                <h2 style="margin-top: 0; margin-bottom: 2rem;">Paused</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button id="resume-btn" class="start-btn"
+                        style="position: relative; height: 50px; font-size: 1.2rem; border-radius: 12px; background: var(--primary);">Resume</button>
+                    <button id="end-session-btn" class="start-btn"
+                        style="position: relative; height: 50px; font-size: 1.2rem; border-radius: 12px; background: rgba(255,255,255,0.1);">End
+                        Session & View Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Card (Hidden by default) -->
+        <div class="game-card hidden" id="report-card">
+            <header class="game-header" style="justify-content: center;">
+                <h2 style="margin:0; font-size: 2rem;">Session Complete!</h2>
+            </header>
+
+            <div class="report-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Total Answered</span>
+                    <span class="stat-value" id="report-total">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Accuracy</span>
+                    <span class="stat-value" id="report-accuracy">0%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Avg Time</span>
+                    <span class="stat-value" id="report-time">0s</span>
+                </div>
+            </div>
+
+            <div class="report-stats"
+                style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); flex-direction: column; gap: 1rem;">
+                <h3 class="section-title" style="text-align: center; margin-bottom: 1rem;">All-Time Stats (<span
+                        id="report-username">Player</span>)</h3>
+                <div style="display: flex; justify-content: space-around; width: 100%;">
+                    <div class="stat-box">
+                        <span class="stat-label">Sessions</span>
+                        <span class="stat-value" id="history-sessions">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Best Streak</span>
+                        <span class="stat-value" id="history-best-streak">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Score</span>
+                        <span class="stat-value" id="history-total-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="needs-practice-section">
+                <h3 class="section-title">Needs Practice</h3>
+                <div class="missed-list" id="missed-list">
+                    <!-- Javascript will populate this -->
+                    <div class="empty-state">Perfect Score! 🎉</div>
+                </div>
+            </div>
+
+            <button id="restart-btn" class="start-btn"
+                style="position: relative; margin-top: 2rem; border-radius: 12px; height: 60px; font-size: 1.5rem;">Play
+                Again</button>
+        </div>
+
+        <div class="controls">
+
+            <button id="params-toggle" class="icon-btn" aria-label="Settings">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
