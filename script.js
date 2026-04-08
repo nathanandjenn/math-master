@@ -61,7 +61,7 @@ const els = {
     input: document.getElementById('answer-input'),
     form: document.getElementById('answer-form'),
     timerBar: document.getElementById('timer-bar'),
-
+pauseModal: document.getElementById('pause-modal'),
     feedbackOverlay: document.getElementById('feedback-overlay'),
     feedbackTitle: document.getElementById('feedback-title'),
     feedbackAnswer: document.getElementById('feedback-answer'),
