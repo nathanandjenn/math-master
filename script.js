@@ -1,5 +1,4 @@
 
-
 // Game Config
 const CONFIG = {
     minFactor: 2,
@@ -13,7 +12,7 @@ const CONFIG = {
 let state = {
     currentUser: 'Player',
     users: {}, // { "Name": { sessions: [], bestStreak: 0 } }
-    apiBase: 'https://math-master-backend-193550708302.northamerica-northeast1.run.app',
+    apiBase: window.location.hostname === 'localhost' ? 'http://localhost:8080' : '', // Cloud Run URL will be injected or relative
 
 
     isPlaying: false,
@@ -61,7 +60,9 @@ const els = {
     input: document.getElementById('answer-input'),
     form: document.getElementById('answer-form'),
     timerBar: document.getElementById('timer-bar'),
-pauseModal: document.getElementById('pause-modal'),
+
+    pauseModal: document.getElementById('pause-modal'),
+
     feedbackOverlay: document.getElementById('feedback-overlay'),
     feedbackTitle: document.getElementById('feedback-title'),
     feedbackAnswer: document.getElementById('feedback-answer'),
@@ -264,60 +265,69 @@ function endSession() {
     state.isPaused = false;
     clearTimeout(state.logicTimeout);
     clearTimeout(state.sessionTimerId);
-    els.pauseModal.classList.remove('active');
+    if (els.pauseModal) els.pauseModal.classList.remove('active');
 
-    // Show Report
-    els.gameCard.classList.add('hidden');
-    els.reportCard.classList.remove('hidden');
+    // Show a beautiful "Session Complete" indicator first!
+    els.feedbackTitle.innerText = "Time's Up!";
+    els.feedbackAnswer.innerText = "10 Minute Session Complete! Let's see your results...";
+    els.feedbackOverlay.classList.add('active');
 
-    const total = state.history.length;
-    const correct = state.history.filter(h => h.result === 'correct').length;
-    const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
-    const avgTime = total === 0 ? 0 : Math.round(state.history.reduce((a, b) => a + b.time, 0) / total / 10) / 100;
+    setTimeout(() => {
+        els.feedbackOverlay.classList.remove('active');
 
-    // Save Session to User Profile
-    if (state.currentUser) {
-        const sessionStats = {
-            date: Date.now(),
-            total,
-            accuracy,
-            avgTime,
-            score: state.score
-        };
-        state.users[state.currentUser].sessions.push(sessionStats);
+        // Show Report
+        els.gameCard.classList.add('hidden');
+        els.reportCard.classList.remove('hidden');
 
-        // Update Best Streak if needed
-        if (state.bestStreak > state.users[state.currentUser].bestStreak) {
-            state.users[state.currentUser].bestStreak = state.bestStreak;
+        const total = state.history.length;
+        const correct = state.history.filter(h => h.result === 'correct').length;
+        const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
+        const avgTime = total === 0 ? 0 : Math.round(state.history.reduce((a, b) => a + b.time, 0) / total / 10) / 100;
+
+        // Save Session to User Profile
+        if (state.currentUser) {
+            const sessionStats = {
+                date: Date.now(),
+                total,
+                accuracy,
+                avgTime,
+                score: state.score
+            };
+            state.users[state.currentUser].sessions.push(sessionStats);
+
+            // Update Best Streak if needed
+            if (state.bestStreak > state.users[state.currentUser].bestStreak) {
+                state.users[state.currentUser].bestStreak = state.bestStreak;
+            }
+
+            saveData();
+
+            // Update History UI
+            const userData = state.users[state.currentUser];
+            els.reportUsername.innerText = state.currentUser;
+            els.historySessions.innerText = userData.sessions.length;
+            els.historyBestStreak.innerText = userData.bestStreak;
+
+            const totalScore = userData.sessions.reduce((acc, sess) => acc + (sess.score || 0), 0);
+            els.historyTotalScore.innerText = totalScore;
         }
 
-        saveData();
+        els.reportTotal.innerText = total;
+        els.reportAccuracy.innerText = `${accuracy}%`;
+        els.reportTime.innerText = `${avgTime}s`;
 
-        // Update History UI
-        const userData = state.users[state.currentUser];
-        els.reportUsername.innerText = state.currentUser;
-        els.historySessions.innerText = userData.sessions.length;
-        els.historyBestStreak.innerText = userData.bestStreak;
-
-        const totalScore = userData.sessions.reduce((acc, sess) => acc + (sess.score || 0), 0);
-        els.historyTotalScore.innerText = totalScore;
-    }
-
-    els.reportTotal.innerText = total;
-    els.reportAccuracy.innerText = `${accuracy}%`;
-    els.reportTime.innerText = `${avgTime}s`;
-
-    els.missedList.innerHTML = '';
-    if (state.missedQuestions.size === 0) {
-        els.missedList.innerHTML = '<div class="empty-state">Perfect Score! 🎉</div>';
-    } else {
-        state.missedQuestions.forEach(key => {
-            const div = document.createElement('div');
-            div.className = 'missed-item';
-            div.innerText = key;
-            els.missedList.appendChild(div);
-        });
-    }
+        els.missedList.innerHTML = '';
+        if (state.missedQuestions.size === 0) {
+            els.missedList.innerHTML = '<div class="empty-state">Perfect Score! 🎉</div>';
+        } else {
+            state.missedQuestions.forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'missed-item';
+                div.innerText = key;
+                els.missedList.appendChild(div);
+            });
+        }
+    }, 2500); // Wait 2.5 seconds before hiding the alert and showing the final screen
 }
 
 function nextQuestion() {
