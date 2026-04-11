@@ -458,6 +458,7 @@ els.startBtn.addEventListener('click', startGame);
 els.restartBtn.addEventListener('click', () => {
     // Return to start screen
     els.reportCard.classList.add('hidden');
+    els.gameCard.classList.remove('hidden');
     els.modeSelection.classList.remove('hidden');
 });
 
